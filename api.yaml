@@ -1,34 +1,176 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
-  title: BD2 TPO HTTP API
-  summary: Management API
+  title: API de Gestión de Clientes y Productos
+  description: API para realizar operaciones CRUD en clientes y productos.
   version: 1.0.0
 servers:
-- url: localhost:8080
-  description: Development Server
-
+  - url: http://api.example.com/v1
 paths:
-  /client:
+  /clientes:
     get:
-      description: Get
+      summary: Listar Clientes
+      description: Obtiene una lista de todos los clientes.
       responses:
         '200':
-          description: Clients
+          description: Lista de clientes exitosamente recuperada.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Client'
-  #/client/
-
+                  $ref: '#/components/schemas/Cliente'
+    post:
+      summary: Crear Cliente
+      description: Crea un nuevo cliente.
+      requestBody:
+        description: Datos del cliente a crear.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cliente'
+      responses:
+        '201':
+          description: Cliente creado exitosamente.
+  /clientes/{nro_cliente}:
+    parameters:
+      - name: nro_cliente
+        in: path
+        required: true
+        description: Número de cliente.
+        schema:
+          type: integer
+    get:
+      summary: Obtener Cliente por ID
+      description: Obtiene un cliente por su número de cliente.
+      responses:
+        '200':
+          description: Cliente recuperado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '404':
+          description: Cliente no encontrado.
+    put:
+      summary: Actualizar Cliente por ID
+      description: Actualiza un cliente existente.
+      requestBody:
+        description: Datos actualizados del cliente.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cliente'
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente.
+        '404':
+          description: Cliente no encontrado.
+    delete:
+      summary: Eliminar Cliente por ID
+      description: Elimina un cliente por su número de cliente.
+      responses:
+        '204':
+          description: Cliente eliminado exitosamente.
+        '404':
+          description: Cliente no encontrado.
+  /productos:
+    get:
+      summary: Listar Productos
+      description: Obtiene una lista de todos los productos.
+      responses:
+        '200':
+          description: Lista de productos exitosamente recuperada.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+    post:
+      summary: Crear Producto
+      description: Crea un nuevo producto.
+      requestBody:
+        description: Datos del producto a crear.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Producto'
+      responses:
+        '201':
+          description: Producto creado exitosamente.
+  /productos/{codigo_producto}:
+    parameters:
+      - name: codigo_producto
+        in: path
+        required: true
+        description: Código de producto.
+        schema:
+          type: integer
+    get:
+      summary: Obtener Producto por ID
+      description: Obtiene un producto por su código de producto.
+      responses:
+        '200':
+          description: Producto recuperado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado.
+    put:
+      summary: Actualizar Producto por ID
+      description: Actualiza un producto existente.
+      requestBody:
+        description: Datos actualizados del producto.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Producto'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente.
+        '404':
+          description: Producto no encontrado.
+    delete:
+      summary: Eliminar Producto por ID
+      description: Elimina un producto por su código de producto.
+      responses:
+        '204':
+          description: Producto eliminado exitosamente.
+        '404':
+          description: Producto no encontrado
 components:
   schemas:
-    Clients:
+    Cliente:
       type: object
-      required:
-      - name
       properties:
-        name:
+        nro_cliente:
+          type: integer
+        nombre:
           type: string
-
+        apellido:
+          type: string
+        direccion:
+          type: string
+        activo:
+          type: boolean
+    Producto:
+      type: object
+      properties:
+        codigo_producto:
+          type: integer
+        marca:
+          type: string
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        precio:
+          type: number
+        stock:
+          type: integer
