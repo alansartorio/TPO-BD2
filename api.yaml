@@ -61,7 +61,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cliente'
+              $ref: '#/components/schemas/BaseCliente'
       responses:
         '200':
           description: Cliente actualizado exitosamente.
@@ -130,7 +130,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Producto'
+              $ref: '#/components/schemas/BaseProducto'
       responses:
         '200':
           description: Producto actualizado exitosamente.

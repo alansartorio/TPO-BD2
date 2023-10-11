@@ -4,6 +4,7 @@ import { pool } from "./db.js";
 import { log } from "console";
 import _ from "lodash";
 import cors from "cors";
+import { Client } from "pg";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,60 +29,36 @@ type ClientRow = {
   tipo: "F" | "M";
 };
 
+function unmapClients(rows: ClientRow[]): any[] {
+  return Object.entries(_.groupBy(rows, ({ nro_cliente }) => nro_cliente)).map(
+    ([nro_cliente, phones]) => ({
+      nro_cliente,
+      nombre: phones[0].nombre,
+      apellido: phones[0].apellido,
+      direccion: phones[0].direccion,
+      activo: phones[0].activo,
+      telefonos:
+        phones[0].tipo == null
+          ? []
+          : phones.map((p) => ({
+              tipo: p.tipo,
+              nro_telefono: p.nro_telefono,
+              codigo_area: p.codigo_area,
+            })),
+    })
+  );
+}
+
 // Ruta para listar todos los clientes
 app.get("/clientes", async (req, res) => {
   try {
     const { rows }: { rows: ClientRow[] } = await pool.query(
-      "SELECT * FROM E01_CLIENTE NATURAL JOIN E01_TELEFONO"
+      "SELECT * FROM E01_CLIENTE c LEFT JOIN E01_TELEFONO t ON c.nro_cliente=t.nro_cliente"
     );
-    res.json(
-      Object.entries(_.groupBy(rows, ({ nro_cliente }) => nro_cliente)).map(
-        ([nro_cliente, phones]) => ({
-          nro_cliente,
-          nombre: phones[0].nombre,
-          apellido: phones[0].apellido,
-          direccion: phones[0].direccion,
-          activo: phones[0].activo,
-          telefonos: phones.map((p) => ({
-            tipo: p.tipo,
-            nro_telefono: p.nro_telefono,
-            codigo_area: p.codigo_area,
-          })),
-        })
-      )
-    );
+    res.json(unmapClients(rows));
   } catch (error) {
     console.error("Error al recuperar clientes", error);
     res.status(500).json({ error: "Error al recuperar clientes" });
-  }
-});
-
-// Ruta para obtener cliente
-app.get("/clientes/:nro", async (req, res) => {
-  try {
-    const { rows }: { rows: ClientRow[] } = await pool.query(
-      "SELECT * FROM E01_CLIENTE NATURAL JOIN E01_TELEFONO WHERE nro_cliente=$1",
-	  [req.params.nro]
-    );
-    res.json(
-      Object.entries(_.groupBy(rows, ({ nro_cliente }) => nro_cliente)).map(
-        ([nro_cliente, phones]) => ({
-          nro_cliente,
-          nombre: phones[0].nombre,
-          apellido: phones[0].apellido,
-          direccion: phones[0].direccion,
-          activo: phones[0].activo,
-          telefonos: phones.map((p) => ({
-            tipo: p.tipo,
-            nro_telefono: p.nro_telefono,
-            codigo_area: p.codigo_area,
-          })),
-        })
-      )
-    );
-  } catch (error) {
-    console.error("Error al recuperar cliente", error);
-    res.status(500).json({ error: "Error al recuperar cliente" });
   }
 });
 
@@ -125,6 +102,69 @@ app.post("/clientes", async (req, res) => {
     }
     await pool.query("COMMIT");
     res.status(201).json({ nro_cliente });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    log(error);
+    res.status(500).json({ error: "Error al insertar cliente" });
+  }
+});
+
+// Ruta para obtener cliente
+app.get("/clientes/:nro", async (req, res) => {
+  try {
+    const { rows }: { rows: ClientRow[] } = await pool.query(
+      "SELECT * FROM E01_CLIENTE c LEFT JOIN E01_TELEFONO t ON c.nro_cliente=t.nro_cliente WHERE c.nro_cliente=$1",
+      [req.params.nro]
+    );
+    const clients = unmapClients(rows);
+    if (clients.length != 1) res.sendStatus(404);
+    else res.json(clients[0]);
+  } catch (error) {
+    console.error("Error al recuperar cliente", error);
+    res.status(500).json({ error: "Error al recuperar cliente" });
+  }
+});
+
+// Ruta para actualizar cliente
+app.put("/clientes/:nro", async (req, res) => {
+  try {
+    await pool.query("BEGIN");
+    var clienteData = req.body;
+    var telefonos = clienteData.telefonos;
+
+    // Inserta el cliente en la tabla E01_CLIENTE
+    await pool.query(
+      "UPDATE E01_CLIENTE SET nombre=$2, apellido=$3, direccion=$4, activo=$5 WHERE nro_cliente=$1",
+      [
+        req.params.nro,
+        clienteData.nombre,
+        clienteData.apellido,
+        clienteData.direccion,
+        clienteData.activo,
+      ]
+    );
+
+    await pool.query("DELETE FROM E01_TELEFONO WHERE nro_cliente=$1", [
+      req.params.nro,
+    ]);
+    var test = await pool.query(
+      "SELECT * FROM E01_TELEFONO WHERE nro_cliente=$1",
+      [req.params.nro]
+    );
+    log(test.rows);
+    for (let telefono of telefonos) {
+      await pool.query(
+        "INSERT INTO E01_TELEFONO (codigo_area, nro_telefono, tipo, nro_cliente) VALUES ($1, $2, $3, $4)",
+        [
+          telefono.codigo_area,
+          telefono.nro_telefono,
+          telefono.tipo,
+          req.params.nro,
+        ]
+      );
+    }
+    await pool.query("COMMIT");
+    res.sendStatus(200);
   } catch (error) {
     await pool.query("ROLLBACK");
     log(error);
