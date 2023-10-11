@@ -4,7 +4,7 @@ info:
   description: API para realizar operaciones CRUD en clientes y productos.
   version: 1.0.0
 servers:
-  - url: http://api.example.com/v1
+  - url: http://localhost:3000/
 paths:
   /clientes:
     get:
@@ -28,7 +28,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Cliente'
+              $ref: '#/components/schemas/BaseCliente'
       responses:
         '201':
           description: Cliente creado exitosamente.
@@ -97,7 +97,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Producto'
+              $ref: '#/components/schemas/BaseProducto'
       responses:
         '201':
           description: Producto creado exitosamente.
@@ -146,24 +146,47 @@ paths:
           description: Producto no encontrado
 components:
   schemas:
-    Cliente:
+    BaseCliente:
       type: object
       properties:
-        nro_cliente:
-          type: integer
         nombre:
           type: string
+          example: Alan
         apellido:
           type: string
+          example: Martinez
         direccion:
           type: string
+          example: Calle 123412
         activo:
-          type: boolean
-    Producto:
+          type: integer
+          example: 12
+        telefonos:
+          type: array
+          items:
+            type: object
+            properties:
+              tipo:
+                type: string
+                enum: [F, M]
+                example: 'F'
+              nro_telefono:
+                type: integer
+                example: 124141411
+              codigo_area:
+                type: integer
+                example: 135
+    Cliente:
+      allOf:
+        - $ref: '#/components/schemas/BaseCliente'
+        - type: object
+          properties:
+            nro_cliente:
+              type: integer
+
+    BaseProducto:
       type: object
       properties:
-        codigo_producto:
-          type: integer
         marca:
           type: string
         nombre:
@@ -174,3 +197,10 @@ components:
           type: number
         stock:
           type: integer
+    Producto:
+      allOf:
+        - $ref: '#/components/schemas/BaseProducto'
+        - type: object
+          properties:
+            codigo_producto:
+              type: integer
