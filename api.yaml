@@ -189,14 +189,19 @@ components:
       properties:
         marca:
           type: string
+          example: Marca de Algo
         nombre:
           type: string
+          example: Nombre de Producto
         descripcion:
           type: string
+          example: Descripcion del producto
         precio:
           type: number
+          example: 124
         stock:
           type: integer
+          example: 10
     Producto:
       allOf:
         - $ref: '#/components/schemas/BaseProducto'
