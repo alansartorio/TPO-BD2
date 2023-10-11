@@ -56,6 +56,35 @@ app.get("/clientes", async (req, res) => {
   }
 });
 
+// Ruta para obtener cliente
+app.get("/clientes/:nro", async (req, res) => {
+  try {
+    const { rows }: { rows: ClientRow[] } = await pool.query(
+      "SELECT * FROM E01_CLIENTE NATURAL JOIN E01_TELEFONO WHERE nro_cliente=$1",
+	  [req.params.nro]
+    );
+    res.json(
+      Object.entries(_.groupBy(rows, ({ nro_cliente }) => nro_cliente)).map(
+        ([nro_cliente, phones]) => ({
+          nro_cliente,
+          nombre: phones[0].nombre,
+          apellido: phones[0].apellido,
+          direccion: phones[0].direccion,
+          activo: phones[0].activo,
+          telefonos: phones.map((p) => ({
+            tipo: p.tipo,
+            nro_telefono: p.nro_telefono,
+            codigo_area: p.codigo_area,
+          })),
+        })
+      )
+    );
+  } catch (error) {
+    console.error("Error al recuperar cliente", error);
+    res.status(500).json({ error: "Error al recuperar cliente" });
+  }
+});
+
 // Ruta para agregar cliente
 app.post("/clientes", async (req, res) => {
   try {
