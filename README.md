@@ -2,9 +2,12 @@
 
 ## Grupo 10
 
+### Consultas y Vistas en `queries.sql`
+
 ### Preparar servidor de API
 
 ```
+cd server
 npm run build
 ```
 
