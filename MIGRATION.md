@@ -1,6 +1,6 @@
 Exportamos de postgres a json:
 
-```postgresql
+```sql
 COPY (
     select array_to_json(array_agg(json))
     from (select row_to_json(p) as json
