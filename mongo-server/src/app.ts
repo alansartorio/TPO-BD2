@@ -1,8 +1,9 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import {router as clientRouter} from "./clients.js"
-import {router as productRouter} from "./products.js"
+import { router as clientRouter } from "./clients.js";
+import { router as productRouter } from "./products.js";
+import { connectToDatabase } from "./db.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,7 +15,8 @@ app.use(bodyParser.json());
 app.use(clientRouter);
 app.use(productRouter);
 
-app.listen(port, () => {
-  console.log(`Servidor en ejecución en el puerto ${port}`);
+connectToDatabase().then(() => {
+    app.listen(port, () => {
+        console.log(`Servidor en ejecución en el puerto ${port}`);
+    });
 });
-
