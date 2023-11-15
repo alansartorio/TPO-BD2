@@ -16,7 +16,7 @@ app.use(
         validateResponses: true, // false by default
     })
 );
-app.use((err, req, res, next) => {
+app.use((err: any, req: any, res: any, next: any) => {
     res.status(err.status || 500).json({
         message: err.message,
         errors: err.errors,
