@@ -53,7 +53,6 @@ router.get("/clientes/:nro", async (req, res) => {
         let client = await collections!.clientes.findOne({
             _id: _.parseInt(req.params.nro),
         });
-        log(client);
 
         if (client !== null) res.json(mapIdToNumber(client));
         else res.sendStatus(404);
