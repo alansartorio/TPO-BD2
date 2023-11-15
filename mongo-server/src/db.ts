@@ -6,6 +6,7 @@ export var collections:
         clientes: mongoDB.Collection;
         productos: mongoDB.Collection;
         facturas: mongoDB.Collection;
+        counters: mongoDB.Collection;
     }
     | undefined = undefined;
 
@@ -24,5 +25,16 @@ export async function connectToDatabase() {
         clientes: db.collection("clientes"),
         productos: db.collection("productos"),
         facturas: db.collection("facturas"),
+        counters: db.collection("counters"),
     };
+}
+
+export async function getNextSequence(name: string) {
+    var ret = await collections!.counters.findOneAndUpdate(
+        { _id: name },
+        { $inc: { seq: 1 } },
+        { upsert: true, returnDocument: "after" }
+    );
+
+    return ret!.seq;
 }

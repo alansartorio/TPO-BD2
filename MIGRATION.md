@@ -72,4 +72,39 @@ docker exec -i mongo-bd2 mongosh admin -u mongo -p docker <<"EOM"
         });
 }
 EOM
+
+docker exec -i mongo-bd2 mongosh admin -u mongo -p docker <<"EOM"
+{
+    db.createCollection("counters");
+    let maxClientId = db.clientes.aggregate({
+        $group: {
+            _id: '',
+            last: {
+                $max: "$_id"
+            }
+        }
+    }).toArray()[0].last;
+    db.counters.insertOne({_id: "clientes", seq: maxClientId});
+
+    let maxProductId = db.productos.aggregate({
+        $group: {
+            _id: '',
+            last: {
+                $max: "$_id"
+            }
+        }
+    }).toArray()[0].last;
+    db.counters.insertOne({_id: "productos", seq: maxProductId});
+
+    let maxBillId = db.facturas.aggregate({
+        $group: {
+            _id: '',
+            last: {
+                $max: "$_id"
+            }
+        }
+    }).toArray()[0].last;
+    db.counters.insertOne({_id: "facturas", seq: maxBillId});
+}
+EOM
 ```
