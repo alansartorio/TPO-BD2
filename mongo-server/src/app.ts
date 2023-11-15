@@ -4,12 +4,25 @@ import cors from "cors";
 import { router as clientRouter } from "./clients.js";
 import { router as productRouter } from "./products.js";
 import { connectToDatabase } from "./db.js";
+import * as OpenApiValidator from "express-openapi-validator";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(
+    OpenApiValidator.middleware({
+        apiSpec: "../api.yaml",
+        validateResponses: true, // false by default
+    })
+);
+app.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+        message: err.message,
+        errors: err.errors,
+    });
+});
 
 // Define las rutas de tu API aquí (clientes y productos).
 app.use(clientRouter);

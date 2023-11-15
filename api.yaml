@@ -16,6 +16,7 @@ paths:
           content:
             application/json:
               schema:
+                additionalProperties: false
                 type: array
                 items:
                   $ref: '#/components/schemas/Cliente'
@@ -28,10 +29,23 @@ paths:
         content:
           application/json:
             schema:
+              additionalProperties: false
               $ref: '#/components/schemas/BaseCliente'
       responses:
         '201':
           description: Cliente creado exitosamente.
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                type: object
+                required:
+                  - nro_cliente
+                properties:
+                  nro_cliente:
+                    type: integer
+        '400':
+          description: Solicitud incorrecta
   /clientes/{nro_cliente}:
     parameters:
       - name: nro_cliente
@@ -39,6 +53,7 @@ paths:
         required: true
         description: Número de cliente.
         schema:
+          additionalProperties: false
           type: integer
     get:
       summary: Obtener Cliente por ID
@@ -49,9 +64,12 @@ paths:
           content:
             application/json:
               schema:
+                additionalProperties: false
                 $ref: '#/components/schemas/Cliente'
         '404':
           description: Cliente no encontrado.
+        '400':
+          description: Solicitud incorrecta
     put:
       summary: Actualizar Cliente por ID
       description: Actualiza un cliente existente.
@@ -61,12 +79,15 @@ paths:
         content:
           application/json:
             schema:
+              additionalProperties: false
               $ref: '#/components/schemas/BaseCliente'
       responses:
         '200':
           description: Cliente actualizado exitosamente.
         '404':
           description: Cliente no encontrado.
+        '400':
+          description: Solicitud incorrecta
     delete:
       summary: Eliminar Cliente por ID
       description: Elimina un cliente por su número de cliente.
@@ -75,6 +96,8 @@ paths:
           description: Cliente eliminado exitosamente.
         '404':
           description: Cliente no encontrado.
+        '400':
+          description: Solicitud incorrecta
   /productos:
     get:
       summary: Listar Productos
@@ -85,6 +108,7 @@ paths:
           content:
             application/json:
               schema:
+                additionalProperties: false
                 type: array
                 items:
                   $ref: '#/components/schemas/Producto'
@@ -97,10 +121,23 @@ paths:
         content:
           application/json:
             schema:
+              additionalProperties: false
               $ref: '#/components/schemas/BaseProducto'
       responses:
         '201':
           description: Producto creado exitosamente.
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                type: object
+                required:
+                  - codigo_producto
+                properties:
+                  codigo_producto:
+                    type: integer
+        '400':
+          description: Solicitud incorrecta
   /productos/{codigo_producto}:
     parameters:
       - name: codigo_producto
@@ -108,6 +145,7 @@ paths:
         required: true
         description: Código de producto.
         schema:
+          additionalProperties: false
           type: integer
     get:
       summary: Obtener Producto por ID
@@ -118,9 +156,12 @@ paths:
           content:
             application/json:
               schema:
+                additionalProperties: false
                 $ref: '#/components/schemas/Producto'
         '404':
           description: Producto no encontrado.
+        '400':
+          description: Solicitud incorrecta
     put:
       summary: Actualizar Producto por ID
       description: Actualiza un producto existente.
@@ -130,12 +171,15 @@ paths:
         content:
           application/json:
             schema:
+              additionalProperties: false
               $ref: '#/components/schemas/BaseProducto'
       responses:
         '200':
           description: Producto actualizado exitosamente.
         '404':
           description: Producto no encontrado.
+        '400':
+          description: Solicitud incorrecta
     delete:
       summary: Eliminar Producto por ID
       description: Elimina un producto por su código de producto.
@@ -144,10 +188,18 @@ paths:
           description: Producto eliminado exitosamente.
         '404':
           description: Producto no encontrado
+        '400':
+          description: Solicitud incorrecta
 components:
   schemas:
     BaseCliente:
       type: object
+      required:
+        - nombre
+        - apellido
+        - direccion
+        - activo
+        - telefonos
       properties:
         nombre:
           type: string
@@ -180,12 +232,20 @@ components:
       allOf:
         - $ref: '#/components/schemas/BaseCliente'
         - type: object
+          required:
+            - nro_cliente
           properties:
             nro_cliente:
               type: integer
 
     BaseProducto:
       type: object
+      required:
+        - marca
+        - nombre
+        - descripcion
+        - precio
+        - stock
       properties:
         marca:
           type: string
@@ -206,6 +266,8 @@ components:
       allOf:
         - $ref: '#/components/schemas/BaseProducto'
         - type: object
+          required:
+            - codigo_producto
           properties:
             codigo_producto:
               type: integer
