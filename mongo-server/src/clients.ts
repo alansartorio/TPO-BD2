@@ -50,7 +50,9 @@ router.post("/clientes", async (req, res) => {
 // Ruta para obtener cliente
 router.get("/clientes/:nro", async (req, res) => {
     try {
-        let client = await collections!.clientes.findOne({ _id: _.parseInt(req.params.nro) });
+        let client = await collections!.clientes.findOne({
+            _id: _.parseInt(req.params.nro),
+        });
         log(client);
 
         if (client !== null) res.json(mapIdToNumber(client));
@@ -64,7 +66,12 @@ router.get("/clientes/:nro", async (req, res) => {
 // Ruta para actualizar cliente
 router.put("/clientes/:nro", async (req, res) => {
     try {
-        // TODO
+        let client = mapNumberToId(req.body);
+        delete client["_id"];
+        await collections!.clientes.findOneAndUpdate(
+            { _id: _.parseInt(req.params.nro) },
+            { $set: client }
+        );
         res.sendStatus(200);
     } catch (error) {
         log(error);
@@ -75,7 +82,7 @@ router.put("/clientes/:nro", async (req, res) => {
 // Ruta para eliminar cliente
 router.delete("/clientes/:nro", async (req, res) => {
     try {
-        // TODO
+        await collections!.clientes.deleteOne({ _id: _.parseInt(req.params.nro) });
         res.sendStatus(204);
     } catch (error) {
         log(error);
