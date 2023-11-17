@@ -18,21 +18,21 @@ type ClientRow = {
 
 function unmapClients(rows: ClientRow[]): any[] {
 	return Object.entries(_.groupBy(rows, ({ nro_cliente }) => nro_cliente)).map(
-		([nro_cliente, phones]) => ({
-			nro_cliente,
-			nombre: phones[0].nombre,
-			apellido: phones[0].apellido,
-			direccion: phones[0].direccion,
-			activo: phones[0].activo,
-			telefonos:
-				phones[0].tipo == null
-					? []
-					: phones.map((p) => ({
-						tipo: p.tipo,
-						nro_telefono: p.nro_telefono,
-						codigo_area: p.codigo_area,
-					})),
-		}),
+        ([nro_cliente, phones]) => ({
+            nro_cliente: _.parseInt(nro_cliente),
+            nombre: phones[0].nombre,
+            apellido: phones[0].apellido,
+            direccion: phones[0].direccion,
+            activo: phones[0].activo,
+            telefonos:
+                phones[0].tipo == null
+                    ? []
+                    : phones.map((p) => ({
+                        tipo: p.tipo,
+                        nro_telefono: p.nro_telefono,
+                        codigo_area: p.codigo_area,
+                    })),
+        }),
 	);
 }
 
