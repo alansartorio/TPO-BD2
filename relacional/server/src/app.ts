@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(
     OpenApiValidator.middleware({
-        apiSpec: "../api.yaml",
+        apiSpec: "../../api.yaml",
         validateResponses: true, // false by default
     })
 );
