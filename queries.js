@@ -114,3 +114,29 @@ db.clientes.aggregate([
         }
     }
 ]);
+
+// VISTAS
+
+/*1. Se debe realizar una vista que devuelva las facturas ordenadas por fecha.*/
+db.createView("facturas_ordenadas", "facturas", [
+    {
+        $sort: { fecha: 1 }
+    }
+]);
+
+/* 2. Se necesita una vista que devuelva todos los productos que aún no han sido facturados. */
+db.createView("productos_no_facturados", "productos", [
+    {
+        $lookup: {
+            from: "facturas",
+            localField: "_id",
+            foreignField: "detalles.codigo_producto",
+            as: "facturas"
+        }
+    },
+    {
+        $match: {
+            facturas: { $eq: [] }
+        }
+    }
+]);
