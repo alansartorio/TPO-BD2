@@ -58,7 +58,7 @@ FROM E01_TELEFONO t
 
 /*10. Mostrar nombre y apellido de cada cliente junto con lo que gastó en total (con IVA
 incluido).*/
-SELECT c.nombre, c.apellido, SUM(f.total_con_iva) AS gasto_total_con_iva
+SELECT c.nombre, c.apellido, SUM(COALESCE(f.total_con_iva, 0)) AS gasto_total_con_iva
 FROM E01_CLIENTE c
          LEFT JOIN E01_FACTURA f ON c.nro_cliente = f.nro_cliente
 GROUP BY c.nombre, c.apellido;
