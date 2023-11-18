@@ -121,6 +121,9 @@ db.clientes.aggregate([
 db.createView("facturas_ordenadas", "facturas", [
     {
         $sort: { fecha: 1 }
+    },
+    {
+        $project: { detalles: 0 }
     }
 ]);
 
